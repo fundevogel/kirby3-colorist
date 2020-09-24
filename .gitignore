@@ -1,0 +1,9 @@
+# Sensitive files
+*.cache
+yarn.lock
+
+# Auto-generated
+/dist
+
+# Composer dependencies that are not needed for the plugin
+/vendor
