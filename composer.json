@@ -1,0 +1,42 @@
+{
+    "name": "fundevogel/kirby3-colorist",
+    "description": "Kirby v3 wrapper for colorist",
+    "type": "kirby-plugin",
+    "license": "MIT",
+    "version": "1.0.0",
+    "keywords": ["kirby3", "image", "graphics"],
+    "homepage": "https://github.com/Fundevogel/kirby3-colorist#readme",
+    "authors": [
+        {
+            "name": "S1SYPHOS",
+            "email": "hello@twobrain.io",
+            "homepage": "https://twobrain.io"
+        }
+    ],
+    "support": {
+        "email": "support@twobrain.io",
+        "forum": "https://forum.getkirby.com",
+        "source": "https://github.com/Fundevogel/kirby3-colorist",
+        "issues": "https://github.com/Fundevogel/kirby3-colorist/issues"
+    },
+    "scripts": {
+        "cs-dry": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix",
+        "test": "phpunit"
+    },
+    "require": {
+        "getkirby/composer-installer": "^1.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.14",
+        "phpunit/phpunit": "^8.1"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Fundevogel\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}
