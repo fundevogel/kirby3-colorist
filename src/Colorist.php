@@ -150,19 +150,54 @@ class Colorist extends Darkroom
         $ar = $x / $y;
         $ar1 = $x1 / $y1;
 
-        # If they match, resize will suffice (square crop included)
-        if ($ar === $ar1) {
+        # If aspect ratios match, simply resizing will suffice ..
+        # (1) .. unless @flokosiol's 'Focus' plugin is installed & used
+        $usingFocus = class_exists('Flokosiol\Focus') && $options['focus'] === true;
+
+        # (2) .. otherwise, resize will suffice if case aspect ratios  they do (square crop included)
+        if ($ar === $ar1 && !$usingFocus) {
             return $command;
         }
 
-        # If they don't, calculate crop position
+        # If aspect ratios don't match (but 'Focus' is used), calculate crop position
+        # (unless 'Focus' plugin is installed & used)
         # (1) Determine 'fit' mode
         $fit = $ar1 > 1
             ? 'width'
             : 'height'
         ;
 
-        # (1a) Desired image's width is greater than its height = 'width'
+        # (2) Use @flokosiol's 'Focus Plugin' if available
+        # See https://github.com/flokosiol/kirby-focus
+        if ($usingFocus) {
+            # For now, we need to pass coordinates manually
+            # TODO: Figure out a way using `Asset`
+            // $file = new Kirby\Cms\Asset($file);
+            // $focusX = \Flokosiol\Focus::coordinates($file, 'x');
+            // $focusY = \Flokosiol\Focus::coordinates($file, 'y');
+            $focusX = $options['focusX'];
+            $focusY = $options['focusY'];
+
+            $options = [
+                'originalWidth' => $x,
+                'originalHeight' => $y,
+                'width' => $x1,
+                'height' => $y1,
+                'ratio' => \Flokosiol\Focus::numberFormat($ar1),
+                'fit' => $fit,
+                'crop' => $focusX * 100 . '-' . $focusY * 100,
+                'focusX' => \Flokosiol\Focus::numberFormat($focusX),
+                'focusY' => \Flokosiol\Focus::numberFormat($focusY),
+            ];
+
+            $focus = \Flokosiol\Focus::cropValues($options);
+
+            $command .= sprintf(' --crop %s,%s,%s,%s', $focus['x1'], $focus['y1'], $focus['width'], $focus['height']);
+
+            return $command;
+        }
+
+        # (3a) Desired image's width is greater than its height = 'width'
         #  __________
         # |          |
         # |    x2    | y
@@ -179,7 +214,7 @@ class Colorist extends Darkroom
         }
 
 
-        # (1b) Desired image's height is greater than its width = 'height'
+        # (3b) Desired image's height is greater than its width = 'height'
         #  _______
         # |   |    |
         # |   |    |
