@@ -105,27 +105,100 @@ class Colorist extends Darkroom
         return '--quality ' . $quality;
     }
 
-    protected function resize(array $options): string
+    protected function resize(string $file, array $options): string
     {
         if ($options['crop'] === false) {
             return sprintf('--resize %sx%s', $options['width'], $options['height']);
         }
 
-        # TODO: Use @flokosiol's 'Focus Plugin' if available
-        # See https://github.com/flokosiol/kirby-focus
-        // if (class_exists('Flokosiol\Focus') && !empty($options['focus'])) {
-        //     $focusCropValues = \Flokosiol\Focus::cropValues($options);
-
-        //     $command  = sprintf('--resize %s,%s', $options['width'], $options['height']);
-        //     $command .= sprintf(' --crop %s,%s,%s,%s', $focusCropValues['x1'], $focusCropValues['y1'], $focusCropValues['width'], $focusCropValues['height']);
-
-        //     return $command;
-        // }
-
         # TODO: Crop relative to gravity, like `center`, `bottom`, etc
         # See https://github.com/getkirby/kirby/blob/master/src/Image/Darkroom/ImageMagick.php#L199
-        $command  = sprintf('--resize %s,%s', $options['width'], $options['height']);
-        $command .= sprintf(' --crop 0,0,%s,%s', $options['width'], $options['height']);
+
+        # Get width & height of original image
+        #  _________
+        # |         |
+        # |         |y
+        # |         |
+        # |_________|
+        #     x
+
+        $infos = $this->identify($file, false);
+        $x = $infos->width;
+        $y = $infos->height;
+
+        # Get width & height of desired image
+        #  _________
+        # |   __    |
+        # |  |__|y2 |y
+        # |   x1    |
+        # |_________|
+        #     x
+
+        $x1 = $options['width'];
+        $y1 = $options['height'];
+
+        # Normalize them
+        if ($x1 === 0 || $y1 === 0) {
+            $x1 = ($x1) ? $x1 : $y1;
+            $y1 = ($y1) ? $y1 : $x1;
+        }
+
+        # Build `resize` command
+        $command  = sprintf('--resize %s,%s', $x1, $y1);
+
+        # Get aspect ratio of original & desired image
+        $ar = $x / $y;
+        $ar1 = $x1 / $y1;
+
+        # If they match, resize will suffice (square crop included)
+        if ($ar === $ar1) {
+            return $command;
+        }
+
+        # If they don't, calculate crop position
+        # (1) Determine 'fit' mode
+        $fit = $ar1 > 1
+            ? 'width'
+            : 'height'
+        ;
+
+        # (1a) Desired image's width is greater than its height = 'width'
+        #  __________
+        # |          |
+        # |    x2    | y
+        # |__________|
+        # |__________| y2
+        #      x
+
+        if ($fit === 'width') {
+            $x2 = $x;
+            $y2 = floor($x2 / $ar1);
+
+            $xpos = 0;
+            $ypos = floor(($y - $y2) / 2);
+        }
+
+
+        # (1b) Desired image's height is greater than its width = 'height'
+        #  _______
+        # |   |    |
+        # |   |    |
+        # |   |y2  | y
+        # |   |    |
+        # | x2|    |
+        # |___|____|
+        #     x
+
+        if ($fit === 'height') {
+            $y2 = $y;
+            $x2 = floor($y2 * $ar1);
+
+            $xpos = floor(($x - $x2) / 2);
+            $ypos = 0;
+        }
+
+        # Build `crop` command
+        $command .= sprintf(' --crop %s,%s,%s,%s', $xpos, $ypos, $x2, $y2);
 
         return $command;
     }
@@ -230,6 +303,7 @@ class Colorist extends Darkroom
 
     public function process(string $file, array $options = []): array
     {
+        var_dump($this->resize($file, $options));
         $options = $this->preprocess($file, $options);
         $command = [];
 
@@ -237,7 +311,7 @@ class Colorist extends Darkroom
         $command[] = $this->format($options);
         $command[] = $this->quality($options);
         $command[] = $this->speed($options);
-        $command[] = $this->resize($options);
+        $command[] = $this->resize($file, $options);
         $command[] = $this->tonemap($options);
         $command[] = $this->yuv($options);
         $command[] = $this->save($file);
