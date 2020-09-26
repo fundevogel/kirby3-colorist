@@ -138,7 +138,7 @@ class Colorist extends Darkroom
         $y1 = $options['height'];
 
         # Normalize them
-        if ($x1 === 0 || $y1 === 0) {
+        if ($x1 === null || $y1 === null) {
             $x1 = ($x1) ? $x1 : $y1;
             $y1 = ($y1) ? $y1 : $x1;
         }
