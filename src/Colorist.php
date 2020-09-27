@@ -150,29 +150,38 @@ class Colorist extends Darkroom
         $ar = $x / $y;
         $ar1 = $x1 / $y1;
 
-        # If aspect ratios match, simply resizing will suffice ..
-        # (1) .. unless @flokosiol's 'Focus' plugin is installed & used
-        $usingFocus = class_exists('Flokosiol\Focus') && $options['focus'] === true;
-
-        # (2) .. otherwise, resize will suffice if case aspect ratios  they do (square crop included)
-        if ($ar === $ar1 && !$usingFocus) {
+        # If aspect ratios match, resizing the image will suffice
+        if ($ar === $ar1) {
             return $command;
         }
 
-        # If aspect ratios don't match (but 'Focus' is used), calculate crop position
-        # (unless 'Focus' plugin is installed & used)
+        # If aspect ratios don't match, calculate crop position
         # (1) Determine 'fit' mode
-        $fit = $ar1 > 1
+        $fit = $ar < $ar1
             ? 'width'
             : 'height'
         ;
 
         # (2) Use @flokosiol's 'Focus Plugin' if available
         # See https://github.com/flokosiol/kirby-focus
-        if ($usingFocus) {
-            # For now, we need to pass coordinates manually
-            # TODO: Figure out a way using `Asset`
-            // $file = new Kirby\Cms\Asset($file);
+        $usingFocus = class_exists('Flokosiol\Focus') && isset($options['focus']) && $options['focus'] === true;
+
+        if ($usingFocus === true) {
+            # TODO: Figure out how this could work outside of `focusCrop`
+            # (1) Doesn't work
+            // $page = new Kirby\Cms\Page([
+            //     'dirname' => Kirby\Toolkit\F::dirname($file),
+            //     'slug' => Kirby\Toolkit\Str::slug(Kirby\Toolkit\F::name(Kirby\Toolkit\F::dirname($file))),
+            // ]);
+            // $file = $page->file(Kirby\Toolkit\F::filename($file));
+
+            # (2) Doesn't work either
+            // $file = new Kirby\Cms\File([
+            //     'root' => Kirby\Toolkit\F::name($file),
+            //     'source' => $file,
+            //     'filename' => Kirby\Toolkit\F::filename($file),
+            // ]);
+
             // $focusX = \Flokosiol\Focus::coordinates($file, 'x');
             // $focusY = \Flokosiol\Focus::coordinates($file, 'y');
             $focusX = $options['focusX'];
@@ -181,8 +190,6 @@ class Colorist extends Darkroom
             $options = [
                 'originalWidth' => $x,
                 'originalHeight' => $y,
-                'width' => $x1,
-                'height' => $y1,
                 'ratio' => \Flokosiol\Focus::numberFormat($ar1),
                 'fit' => $fit,
                 'crop' => $focusX * 100 . '-' . $focusY * 100,
@@ -212,7 +219,6 @@ class Colorist extends Darkroom
             $xpos = 0;
             $ypos = floor(($y - $y2) / 2);
         }
-
 
         # (3b) Desired image's height is greater than its width = 'height'
         #  _______
@@ -338,7 +344,6 @@ class Colorist extends Darkroom
 
     public function process(string $file, array $options = []): array
     {
-        var_dump($this->resize($file, $options));
         $options = $this->preprocess($file, $options);
         $command = [];
 
