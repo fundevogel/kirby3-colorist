@@ -111,4 +111,26 @@ Kirby::plugin('fundevogel/colorist', [
             return F::extension($this->root()) === $format;
         },
     ],
+    'filesMethods' => [
+        'toFormat' => function (string $format = 'avif') {
+            $files = [];
+
+            foreach ($this as $file) {
+                $files[] = $file->toFormat($format);
+            }
+
+            return new Files($files, $this->parent());
+        },
+        'toFormats' => function (...$formats) {
+            $files = [];
+
+            foreach ($formats as $format) {
+                foreach ($this as $file) {
+                    $files[] = $file->toFormat($format);
+                }
+            }
+
+            return new Files($files, $this->parent());
+        },
+    ],
 ]);
