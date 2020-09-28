@@ -182,6 +182,14 @@ class Colorist extends Darkroom
             //     'filename' => Kirby\Toolkit\F::filename($file),
             // ]);
 
+            # (3) Nope
+            // $path = Kirby\Toolkit\Str::replace($file, kirby()->root('content') . '/', '');
+            // $path = Kirby\Toolkit\Str::replace($path, '/' . Kirby\Toolkit\F::filename($file), '');
+            // $file = page($path)->file(Kirby\Toolkit\F::filename($file));
+
+            # (4) Not a chance
+            // $file = new Image($file);
+
             // $focusX = \Flokosiol\Focus::coordinates($file, 'x');
             // $focusY = \Flokosiol\Focus::coordinates($file, 'y');
             $focusX = $options['focusX'];
