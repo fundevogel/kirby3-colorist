@@ -1,5 +1,16 @@
 <?php
 
+use Kirby\Cms\App;
+use Kirby\Cms\File;
+use Kirby\Cms\Files;
+use Kirby\Cms\Filename;
+use Kirby\Cms\FileVersion;
+use Kirby\Data\Data;
+use Kirby\Image\Darkroom;
+use Kirby\Toolkit\F;
+use Kirby\Toolkit\Str;
+
+
 # Initialize plugin
 # (1) Load `colorist` class
 load([
@@ -9,8 +20,9 @@ load([
 
 # (2) Add `colorist` as thumb driver if enabled
 if (option('thumbs.driver') === 'colorist') {
-    Kirby\Image\Darkroom::$types['colorist'] = 'Fundevogel\Colorist';
+    Darkroom::$types['colorist'] = 'Fundevogel\Colorist';
 }
+
 
 /**
  * Kirby v3 wrapper for `colorist`
@@ -37,6 +49,55 @@ Kirby::plugin('fundevogel/colorist', [
     'snippets' => [
         'colorist' => __DIR__ . '/snippets/colorist.php',
     ],
+    'components' => [
+        'file::version' => function (App $kirby, $file, array $options = []) {
+            # At this point the only thing between Kirby and AVIF is its `file::version` component,
+            # so only by changing one's array of true extensions, one truly achieves resizability
+            # https://github.com/getkirby/kirby/blob/7525553b8d9976d6ed08b702f62fc3d368116777/config/components.php#L77
+            #
+            # (the rest is copy & paste)
+            $resizable = [
+                'avif',
+                'bmp',
+                'gif',
+                'j2k',
+                'jp2',
+                'jpeg',
+                'jpg',
+                'png',
+                'tiff',
+                'webp'
+            ];
+
+            if (in_array($file->extension(), $resizable) === false) {
+                return $file;
+            }
+
+            // create url and root
+            $mediaRoot = dirname($file->mediaRoot());
+            $dst       = $mediaRoot . '/{{ name }}{{ attributes }}.{{ extension }}';
+            $thumbRoot = (new Filename($file->root(), $dst, $options))->toString();
+            $thumbName = basename($thumbRoot);
+            $job       = $mediaRoot . '/.jobs/' . $thumbName . '.json';
+
+            if (file_exists($thumbRoot) === false) {
+                try {
+                    Data::write($job, array_merge($options, [
+                        'filename' => $file->filename()
+                    ]));
+                } catch (Throwable $e) {
+                    return $file;
+                }
+            }
+
+            return new FileVersion([
+                'modifications' => $options,
+                'original'      => $file,
+                'root'          => $thumbRoot,
+                'url'           => dirname($file->mediaUrl()) . '/' . $thumbName,
+            ]);
+        },
+    ],
     'fileMethods' => [
         # Provides basic information about the image,
         # like dimensions, bit depth, embedded ICC profile, ..
@@ -50,7 +111,7 @@ Kirby::plugin('fundevogel/colorist', [
                 throw new Exception('Invalid file type: "' . $this->type() . '"');
             }
 
-            return \Fundevogel\Colorist::identify($this->root(), $asArray);
+            return Fundevogel\Colorist::identify($this->root(), $asArray);
         },
         'toFormat' => function (string $format = 'avif') {
             # Check if image
@@ -60,9 +121,9 @@ Kirby::plugin('fundevogel/colorist', [
 
             # Build file information
             $oldName = $this->filename();
-            $newName = Kirby\Toolkit\F::name($oldName) . '.' . $format;
+            $newName = F::name($oldName) . '.' . $format;
             $src = $this->root();
-            $dst = Kirby\Toolkit\Str::replace($src, $oldName, $newName);
+            $dst = Str::replace($src, $oldName, $newName);
 
             $template = option('fundevogel.colorist.template');
 
@@ -71,7 +132,7 @@ Kirby::plugin('fundevogel/colorist', [
                 $template = $template[$format];
             }
 
-            $file = File::factory([
+            $file = new File([
                 'source' => $dst,
                 'parent' => $this->parent(),
                 'filename' => $newName,
@@ -82,7 +143,7 @@ Kirby::plugin('fundevogel/colorist', [
                 return $file;
             }
 
-            $colorist = new \Fundevogel\Colorist();
+            $colorist = new Fundevogel\Colorist();
             $colorist->toFormat($src, $dst, $format);
 
             return $file->save();
