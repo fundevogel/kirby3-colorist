@@ -42,6 +42,7 @@ Kirby::plugin('fundevogel/colorist', [
         'bin' => __DIR__ . '/bin/colorist',
         'sizes' => [1920, 1140, 640, 320],
         'template' => 'image',
+        'uploadFormats' => ['webp'],
     ],
     'snippets' => [
         'colorist' => __DIR__ . '/snippets/colorist.php',
@@ -126,6 +127,10 @@ Kirby::plugin('fundevogel/colorist', [
 
             # Check if there's an array with a template for each format
             if (is_array($template)) {
+                if (!isset($template[$format])) {
+                    throw new Exception('No valid file template specified for format "' . $format . '"');
+                }
+
                 $template = $template[$format];
             }
 
@@ -145,10 +150,10 @@ Kirby::plugin('fundevogel/colorist', [
 
             return $file->save();
         },
-        'toFormats' => function (...$formats) {
-            // if (empty($formats)) {
-            //     throw new Exception('No formats specified.');
-            // }
+        'toFormats' => function (array $formats) {
+            if (empty($formats)) {
+                $formats = option('fundevogel.colorist.uploadFormats');
+            }
 
             $files = [];
 
@@ -179,7 +184,11 @@ Kirby::plugin('fundevogel/colorist', [
 
             return new Files($files, $this->parent());
         },
-        'toFormats' => function (...$formats) {
+        'toFormats' => function (array $formats) {
+            if (empty($formats)) {
+                $formats = option('fundevogel.colorist.uploadFormats');
+            }
+
             $files = [];
 
             foreach ($formats as $format) {
@@ -189,6 +198,14 @@ Kirby::plugin('fundevogel/colorist', [
             }
 
             return new Files($files, $this->parent());
+        },
+    ],
+    'hooks' => [
+        'file.create:after' => function ($file) {
+            $file->toFormats(option('fundevogel.colorist.uploadFormats'));
+        },
+        'file.replace:after' => function ($newFile, $oldFile) {
+            $newFile->toFormats(option('fundevogel.colorist.uploadFormats'));
         },
     ],
 ]);
