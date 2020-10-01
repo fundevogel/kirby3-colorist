@@ -22,9 +22,9 @@ class Colorist extends Darkroom
     {
         return parent::defaults() + [
             'format'  => null,
-            'speed'   => option('fundevogel.colorist.speed'),
-            'tonemap' => option('fundevogel.colorist.tonemap'),
-            'yuv'     => option('fundevogel.colorist.yuv'),
+            'speed'   => option('fundevogel.colorist.speed', 10),
+            'tonemap' => option('fundevogel.colorist.tonemap', 'off'),
+            'yuv'     => option('fundevogel.colorist.yuv', '420'),
         ];
     }
 

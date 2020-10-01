@@ -41,10 +41,7 @@ Kirby::plugin('fundevogel/colorist', [
     'options' => [
         'bin' => __DIR__ . '/bin/colorist',
         'sizes' => [1920, 1140, 640, 320],
-        'speed' => 0,
         'template' => 'image',
-        'tonemap' => 'off',
-        'yuv' => '420',
     ],
     'snippets' => [
         'colorist' => __DIR__ . '/snippets/colorist.php',
