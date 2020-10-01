@@ -1,6 +1,6 @@
 <?php
-    $formats = $src->toFormats('avif', 'webp');
-    $sizes = option('fundevogel.colorist.sizes');
+    $formats = $src->toFormats(['avif', 'webp']);
+    $sizes = $sizes ?? option('fundevogel.colorist.sizes');
 ?>
 
 <picture>
@@ -34,5 +34,9 @@
     >
     <?php endforeach?>
 
-    <img src="<?= $src->url() ?>">
+    <img
+        src="<?= $src->resize($width, $height)->url() ?>"
+        title="<?= $src->title() ?>" alt="<?= $src->alt() ?>"
+        width="<?= $width ?>" height="<?= $height ?>"
+    >
 </picture>

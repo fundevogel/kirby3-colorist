@@ -61,6 +61,20 @@ $profile = $image->identify();
 
 For further details, have a look at the following sections.
 
+#### Configuration
+You may also change certain options from your `config.php` globally (`'fundevogel.colorist.optionName'`):
+
+| Option       | Type        | Default                     | Description                                                                            |
+| ------------ | ----------- | --------------------------- | -------------------------------------------------------------------------------------- |
+| `'bin'`      | string      | `__DIR__ . '/bin/colorist'` | Path to `colorist` executable                                                          |
+| `'formats'`  | array       | `['webp']`                  | Default file formats to be used on image uploads                                       |
+| `'speed'`    | integer     | `0`                         | Quality/speed tradeoff when encoding (AVIF only); `0` = best quality, `10` = fastest   |
+| `'template'` | string      | `'image'`                   | Set file blueprint for generated images                                                |
+| `'tonemap'`  | string      | `'off'`                     | Set tonemapping (`'on'` or `'off'`)                                                    |
+| `'yuv'`      | string      | `'420'`                     | Choose yuv output format for supported formats (`'444'`, `'422'`, `'420'` or `'yv12'`) |
+
+The `colorist` library has [much more](https://github.com/joedrago/colorist/blob/master/docs/Usage.md) to offer, and more options will be made available in time - if one of it's many features you really feel is missing, feel free to open a PR!
+
 #### Methods
 For now, the following methods are available:
 
@@ -79,25 +93,20 @@ Checks if `$file` has image of given `$format`, returns `bool`.
 ##### `isFormat (string $format)`
 Checks if `$file` is image of given `$format`, returns `bool`.
 
-#### Configuration
-You may also change certain options from your `config.php` globally (`'fundevogel.colorist.optionName'`):
+#### Hooks
+On image upload, files are automatically converted to all formats in the `'fundevogel.colorist.formats'` option (`['webp']` by default).
 
-| Option       | Type        | Default                     | Description                                                                            |
-| ------------ | ----------- | --------------------------- | -------------------------------------------------------------------------------------- |
-| `'bin'`      | string      | `__DIR__ . '/bin/colorist'` | Path to `colorist` executable                                                          |
-| `'formats'`  | array       | `['webp']`                  | Default file formats to be used on image uploads                                       |
-| `'speed'`    | integer     | `0`                         | Quality/speed tradeoff when encoding (AVIF only); `0` = best quality, `10` = fastest   |
-| `'template'` | string      | `'image'`                   | Set file blueprint for generated images                                                |
-| `'tonemap'`  | string      | `'off'`                     | Set tonemapping (`'on'` or `'off'`)                                                    |
-| `'yuv'`      | string      | `'420'`                     | Choose yuv output format for supported formats (`'444'`, `'422'`, `'420'` or `'yv12'`) |
+#### Tag
+The `(colorist: example.jpg)` tag supports converting / resizing right from the editor.
 
-The `colorist` library has [much more](https://github.com/joedrago/colorist/blob/master/docs/Usage.md) to offer, and more options will be made available in time - if one of it's many features you really feel is missing, feel free to open a PR!
+##### Options
+WIP
 
 
 ## Roadmap
 - [ ] Add tests
 - [x] ~~Add hooks for file upload/update~~
-- [ ] Add tag for editor use
+- [x] ~~Add tag for editor use~~
 - [x] ~~Add compatibility with 'Focus' plugin by @flokosiol~~
 - [ ] Add methods for editing ICC color profile
 

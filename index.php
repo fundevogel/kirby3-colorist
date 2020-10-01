@@ -6,6 +6,7 @@ use Kirby\Cms\Files;
 use Kirby\Cms\Filename;
 use Kirby\Cms\FileVersion;
 use Kirby\Data\Data;
+use Kirby\Http\Url;
 use Kirby\Image\Darkroom;
 use Kirby\Toolkit\F;
 use Kirby\Toolkit\Str;
@@ -42,7 +43,7 @@ Kirby::plugin('fundevogel/colorist', [
         'bin' => __DIR__ . '/bin/colorist',
         'sizes' => [1920, 1140, 640, 320],
         'template' => 'image',
-        'uploadFormats' => ['webp'],
+        'formats' => ['webp'],
     ],
     'snippets' => [
         'colorist' => __DIR__ . '/snippets/colorist.php',
@@ -152,7 +153,7 @@ Kirby::plugin('fundevogel/colorist', [
         },
         'toFormats' => function (array $formats) {
             if (empty($formats)) {
-                $formats = option('fundevogel.colorist.uploadFormats');
+                $formats = option('fundevogel.colorist.formats');
             }
 
             $files = [];
@@ -186,7 +187,7 @@ Kirby::plugin('fundevogel/colorist', [
         },
         'toFormats' => function (array $formats) {
             if (empty($formats)) {
-                $formats = option('fundevogel.colorist.uploadFormats');
+                $formats = option('fundevogel.colorist.formats');
             }
 
             $files = [];
@@ -202,10 +203,47 @@ Kirby::plugin('fundevogel/colorist', [
     ],
     'hooks' => [
         'file.create:after' => function ($file) {
-            $file->toFormats(option('fundevogel.colorist.uploadFormats'));
+            $file->toFormats(option('fundevogel.colorist.formats'));
         },
         'file.replace:after' => function ($newFile, $oldFile) {
-            $newFile->toFormats(option('fundevogel.colorist.uploadFormats'));
+            $newFile->toFormats(option('fundevogel.colorist.formats'));
         },
+    ],
+    'tags' => [
+        'colorist' => [
+            'attr' => [
+                'alt',
+                'class',
+                'fallback',
+                'height',
+                'imgclass',
+                'title',
+                'width',
+            ],
+            'html' => function($tag) {
+                if ($tag->file = $tag->file($tag->value)) {
+                    $tag->alt = $tag->alt ?? $tag->file->alt()->or(' ')->value();
+                    $tag->fallback = $tag->fallback ?? 'jpg';
+                    $tag->height = $tag->height ?? $tag->file($tag->value)->height();
+                    $tag->sizes = $tag->sizes ? $tag->sizes : option('fundevogel.colorist.sizes');
+                    $tag->src = $tag->file($tag->value);
+                    $tag->title = $tag->title ?? $tag->file->title()->or(' ')->value();
+                    $tag->width = $tag->width ?? $tag->file($tag->value)->width();
+                } else {
+                    $tag->src = Url::to($tag->value);
+                }
+
+                return snippet('colorist', [
+                    'alt' => $tag->alt,
+                    'class' => $tag->class,
+                    'height' => $tag->height,
+                    'sizes' => $tag->sizes,
+                    'src' => $tag->src,
+                    'title' => $tag->title,
+                    'type' => $tag->fallback,
+                    'width' => $tag->width
+                ], false);
+            },
+        ],
     ],
 ]);
