@@ -5,13 +5,15 @@ A Kirby v3 wrapper for `colorist`.
 
 
 ## What
-This library acts as alternative thumb driver, being compatible not only to custom `thumb()` methods, but also to @flokosiol's ['Focus' plugin](https://github.com/flokosiol/kirby-focus). It is a Kirby v3 wrapper for the Joe Drago's [`colorist`](https://github.com/joedrago/colorist). While it is capable of generating and manipulating next-gen image formats ([unlimited](https://jakearchibald.com/2020/avif-has-landed) [AVIF](https://aomediacodec.github.io/av1-avif) [power](https://caniuse.com/avif)!), some features aren't supported (like applying `blur` or `grayscale`).
+This library acts as alternative **thumb driver** and is **fully `Darkroom` compliant**. Therefore, `kirby3-colorist` is not only **compatible to** custom `thumb()` methods (shipped with other plugins), but also to **Flo Kosiol's ['Focus' plugin](https://github.com/flokosiol/kirby-focus)**.
+
+It is a Kirby v3 wrapper for the Joe Drago's [`colorist`](https://github.com/joedrago/colorist). While it is capable of **generating and manipulating next-gen image formats** ([unlimited](https://jakearchibald.com/2020/avif-has-landed) - [AVIF](https://aomediacodec.github.io/av1-avif) - [power](https://caniuse.com/avif)!), some features aren't supported (like applying `blur` or `grayscale`).
 
 From the `colorist` README:
 
-> Colorist is an image file and ICC profile converter, generator, and identifier. Why make such a tool when the venerable ImageMagick already exists and seems to offer every possible image processing tool you can imagine? The answer is absolute luminance.
+> Colorist is an image file and ICC profile converter, generator, and identifier. Why make such a tool when the venerable ImageMagick already exists and seems to offer every possible image processing tool you can imagine? The answer is **absolute luminance**.
 
-If that sounds interesting and you want to read on, be sure to check it out or visit [its homepage](https://joedrago.github.io/colorist).
+If that sounds interesting and you want to read on, be sure to check it out on the commandline or just visit [its homepage](https://joedrago.github.io/colorist) for more information.
 
 
 ## How
@@ -22,7 +24,9 @@ composer require fundevogel/kirby3-colorist
 ```
 
 ### Usage
-This plugin exposes several methods & configuration options. For example, if you want to convert an image to another format:
+This plugin exposes several methods & configuration options (upload hooks will follow).
+
+For example, if you want to convert an image to another format:
 
 ```php
 // Converting a single image to single format:
@@ -58,11 +62,10 @@ $profile = $image->identify();
 For further details, have a look at the following sections.
 
 #### Methods
-
-The following methods are available:
+For now, the following methods are available:
 
 ##### `identify (bool $asArray)`
-Provides information about an image's color profile as well as width, height & depth.
+Provides information about an image's color profile (primaries, luminance and such) as well as width, height & depth.
 
 ##### `toFormat (string $format = 'avif')`
 Converts an image to `$format` and places it alongside the original version in the respective `content` folder. It returns a `$file` object, ready to be used via `thumb()` etc.
@@ -86,17 +89,20 @@ You may also change certain options from your `config.php` globally (`'fundevoge
 | `'tonemap'` | string      | `'off'`                     | Set tonemapping (`'on'` or `'off'`)                                                    |
 | `'yuv'`     | string      | `'420'`                     | Choose yuv output format for supported formats (`'444'`, `'422'`, `'420'` or `'yv12'`) |
 
+The `colorist` library has [much more](https://github.com/joedrago/colorist/blob/master/docs/Usage.md) to offer, and more options will be made available in time - if one of it's many features you really feel is missing, feel free to open a PR!
+
 
 ## Roadmap
 - [ ] Add tests
-- [ ] Add methods for loading / using
+- [ ] Add hooks for file upload/update
 - [x] ~~Add compatibility with 'Focus' plugin by @flokosiol~~
+- [ ] Add methods for editing ICC color profile
 
 
 ## Credits
 Credit where credit is due - as creator of `colorist`, [Joe Drago](https://github.com/joedrago) is the man of the hour. The included binary powers this project, and I'm thankful for his great work.
 
-Also, I want to say thanks to @flokosiol and @hashandsalt, from whose work I learned a lot, was inspired and built upon.
+Also, I want to say thanks to [@flokosiol](https://github.com/flokosiol) and [@hashandsalt](https://github.com/HashandSalt), from whose work I learned (and borrowed) one or two things.
 
 **Happy coding!**
 
