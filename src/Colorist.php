@@ -341,7 +341,6 @@ class Colorist extends Darkroom
         # (2) Convert command to string
         $command = implode(' ', array_filter($command));
 
-        var_dump($command);
         # Execute command
         exec($command, $output, $status);
 
