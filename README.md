@@ -62,18 +62,40 @@ $profile = $image->identify();
 For further details, have a look at the following sections.
 
 #### Configuration
-You may also change certain options from your `config.php` globally (`'fundevogel.colorist.optionName'`):
+You may also change certain options from your `config.php` globally, like this: `'fundevogel.colorist.optionName'` (or simply pass them to the `thumb()` method:
 
-| Option       | Type        | Default                     | Description                                                                            |
+| Option       | Type        | Default(s to)               | Description                                                                            |
 | ------------ | ----------- | --------------------------- | -------------------------------------------------------------------------------------- |
 | `'bin'`      | string      | `__DIR__ . '/bin/colorist'` | Path to `colorist` executable                                                          |
+| `'bpc'`      | integer     | `'auto'`                    | Set bits-per-channel (J2K/JP2 only); ranging from `8` to `16`                          |
 | `'formats'`  | array       | `['webp']`                  | Default file formats to be used on image uploads                                       |
-| `'speed'`    | integer     | `0`                         | Quality/speed tradeoff when encoding (AVIF only); `0` = best quality, `10` = fastest   |
+| `'deflum'`   | integer     | `80`                        | default/fallback luminance value in nits                                               |
+| `'hlglum'`   | integer     | `null`                      | Like `'deflum'`, but uses an appropriate diffuse white based on peak HLG               |
+| `'jobs'`     | integer     | `0`                         | Number of jobs to use when working (`0` = unlimited)                                   |
+| `'speed'`    | integer     | `'auto'`                    | Quality/speed tradeoff when encoding (AVIF only); `0` = best quality, `10` = fastest   |
 | `'template'` | string      | `'image'`                   | Set file blueprint for generated images                                                |
-| `'tonemap'`  | string      | `'off'`                     | Set tonemapping (`'on'` or `'off'`)                                                    |
-| `'yuv'`      | string      | `'420'`                     | Choose yuv output format for supported formats (`'444'`, `'422'`, `'420'` or `'yv12'`) |
+| `'tonemap'`  | string|bool | `'auto'`                    | Set tonemapping (`'on'` or `'off'`, but `true` & `false` are possible, too)            |
+| `'yuv'`      | string      | `'auto'`                    | Choose yuv output format for supported formats (`'444'`, `'422'`, `'420'` or `'yv12'`) |
 
 The `colorist` library has [much more](https://github.com/joedrago/colorist/blob/master/docs/Usage.md) to offer, and more options will be made available in time - if one of it's many features you really feel is missing, feel free to open a PR!
+
+**Note:** When working with multiple formats, you may want to turn `thumbs.quality` into an array and pass the desired `format` explicitly, like this:
+
+```php
+// config.php
+
+return [
+    // ..
+    'thumbs.quality' => [
+        'avif' => 60,
+        'webp' => 80,
+    ],
+];
+
+
+// template.php
+$image->thumb(['width' => 300, 'format' => 'avif']);
+```
 
 #### Methods
 For now, the following methods are available:

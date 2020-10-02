@@ -21,10 +21,14 @@ class Colorist extends Darkroom
     protected function defaults(): array
     {
         return parent::defaults() + [
+            'cmm'     => option('fundevogel.colorist.cmm', null),
+            'deflum'  => option('fundevogel.colorist.deflum', null),
             'format'  => null,
-            'speed'   => option('fundevogel.colorist.speed', 10),
-            'tonemap' => option('fundevogel.colorist.tonemap', 'off'),
-            'yuv'     => option('fundevogel.colorist.yuv', '420'),
+            'hlglum'  => option('fundevogel.colorist.hlglum', null),
+            'jobs'    => option('fundevogel.colorist.jobs', 0),
+            'speed'   => option('fundevogel.colorist.speed', null),
+            'tonemap' => option('fundevogel.colorist.tonemap', null),
+            'yuv'     => option('fundevogel.colorist.yuv', null),
         ];
     }
 
@@ -64,8 +68,6 @@ class Colorist extends Darkroom
 
 
     /**
-     * Helpers
-     *
      * Building command strings
      */
 
@@ -74,37 +76,34 @@ class Colorist extends Darkroom
         return sprintf(option('fundevogel.colorist.bin') . ' convert %s', $file);
     }
 
-    protected function format(array $options): string
+    protected function save(string $file): string
     {
-        $formats = [
-            'avif',
-            'bmp',
-            'jpg',
-            'jp2',
-            'j2k',
-            'png',
-            'tiff',
-            'webp',
-        ];
-
-        if (in_array($options['format'], $formats)) {
-            return '--format ' . $options['format'];
-        }
-
-        return '';
+        return sprintf('%s', $file);
     }
 
+
+    /**
+     * Overwriting Darkroom options
+     */
+
+    # https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-q---quality
     protected function quality(array $options): string
     {
         $quality = $options['quality'];
 
-        if (is_array($quality) && in_array($options['format'], $quality)) {
-            $quality = $quality[$options['format']];
+        if (is_array($quality) === true) {
+            if (isset($options['format']) === true && in_array($options['format'], $quality) === true) {
+                $quality = $quality[$options['format']];
+            } else {
+                return '';
+            }
         }
 
         return '--quality ' . $quality;
     }
 
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#--resize
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-z---rect---crop
     protected function resize(string $file, array $options): string
     {
         if ($options['crop'] === false) {
@@ -252,34 +251,91 @@ class Colorist extends Darkroom
         return $command;
     }
 
-    protected function tonemap(array $options): string
+
+    /**
+     * Implementing Colorist options
+     *
+     * (1) Basic options
+     * (2) Output format options
+     */
+
+    # (1) Basic options
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-j---jobs
+    protected function jobs(array $options): string
     {
-        $tonemap = [
-            'on',
-            'off',
-        ];
-
-        if (in_array($options['tonemap'], $tonemap)) {
-            return '--tonemap ' . $options['tonemap'];
-        }
-
-        return '--tonemap auto';
+        return '--jobs ' . $options['jobs'];
     }
 
-    protected function yuv(array $options): string
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#--cmm---cms
+    protected function cmm(array $options): string
     {
-        $yuv = [
-            '444',
-            '422',
-            '420',
-            'yv12',
+        $modules = [
+            'colorist',
+            'lcms',
         ];
 
-        if (in_array($options['yuv'], $yuv)) {
-            return '--yuv ' . $options['yuv'];
+        if (in_array($options['cmm'], $modules) === true) {
+            return '--cmm ' . $options['cmm'];
         }
 
-        return '--yuv auto';
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#--deflum---hlglum
+    protected function deflum(array $options): string
+    {
+        if ($options['deflum'] !== null) {
+            return '--deflum ' . $options['deflum'];
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#--deflum---hlglum
+    protected function hlglum(array $options): string
+    {
+        if ($options['hlglum'] !== null) {
+            return '--hlglum ' . $options['hlglum'];
+        }
+
+        return '';
+    }
+
+    # (2) Output format options
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-b---bpc
+    protected function bpc(array $options): string
+    {
+        $min = 8;
+        $max = 16;
+
+        if (($min <= (int) $options['bpc']) && ((int) $options['bpc'] <= $max)) {
+            return '--bpc ' . $options['bpc'];
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-f---format
+    protected function format(array $options): string
+    {
+        $formats = [
+            'avif',
+            'bmp',
+            'jpg',
+            'jp2',
+            'j2k',
+            'png',
+            'tiff',
+            'webp',
+        ];
+
+        if (in_array($options['format'], $formats) === true) {
+            return '--format ' . $options['format'];
+        }
+
+        return '';
     }
 
     protected function speed(array $options): string
@@ -291,23 +347,48 @@ class Colorist extends Darkroom
             return '--speed ' . $options['speed'];
         }
 
-        return '--speed auto';
+        return '';
     }
 
-    protected function save(string $file): string
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-t---tonemap
+    protected function tonemap(array $options): string
     {
-        return sprintf('%s', $file);
+        # Normalize booleans
+        if ($options['tonemap'] === true) {
+            $options['tonemap'] = 'on';
+        }
+
+        if ($options['tonemap'] === false) {
+            $options['tonemap'] = 'off';
+        }
+
+        $tonemap = [
+            'on',
+            'off',
+        ];
+
+        if (in_array($options['tonemap'], $tonemap) === true) {
+            return '--tonemap ' . $options['tonemap'];
+        }
+
+        return '';
     }
 
-    public function preprocess(string $file, array $options = [])
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#--yuv
+    protected function yuv(array $options): string
     {
-        $options = $this->options($options);
+        $yuv = [
+            '444',
+            '422',
+            '420',
+            'yv12',
+        ];
 
-        # TODO: As the underlying PHP function `getimagesize`
-        # doesn't recognize next-gen image formats (like AVIF) yet,
-        # this has to suffice ..
+        if (in_array($options['yuv'], $yuv) === true) {
+            return '--yuv ' . $options['yuv'];
+        }
 
-        return $options;
+        return '';
     }
 
 
@@ -317,6 +398,7 @@ class Colorist extends Darkroom
 
     public static function identify(string $file, bool $asArray = true)
     {
+        # Build `identify` command
         $command = sprintf(option('fundevogel.colorist.bin') . ' identify --json %s', $file);
 
         exec($command, $output, $status);
@@ -328,15 +410,28 @@ class Colorist extends Darkroom
         return json_decode($output[0], $asArray);
     }
 
+    public function preprocess(string $file, array $options = [])
+    {
+        $options = $this->options($options);
+
+        # TODO: As the underlying PHP function `getimagesize`
+        # doesn't recognize next-gen image formats (like AVIF) yet,
+        # we need to overwrite this function, at least for now
+
+        return $options;
+    }
+
     public function toFormat(string $src, string $dst, string $format)
     {
         $options = $this->preprocess($src, ['format' => $format]);
         $command = [];
 
+        # Build `convert` command
         $command[] = $this->convert($src, $options);
         $command[] = $this->format($options);
         $command[] = $this->save($dst);
 
+        # Let's get ready to rumble
         # (1) Remove falsey entries
         # (2) Convert command to string
         $command = implode(' ', array_filter($command));
@@ -354,15 +449,26 @@ class Colorist extends Darkroom
         $options = $this->preprocess($file, $options);
         $command = [];
 
+        # Build `convert` command
         $command[] = $this->convert($file);
-        $command[] = $this->format($options);
+        # (1) Darkroom options
         $command[] = $this->quality($options);
-        $command[] = $this->speed($options);
         $command[] = $this->resize($file, $options);
+        # (2) Basic options
+        $command[] = $this->jobs($options);
+        $command[] = $this->cmm($options);
+        $command[] = $this->deflum($options);
+        $command[] = $this->hlglum($options);
+        # (3) Output format options
+        $command[] = $this->bpc($options);
+        $command[] = $this->format($options);
+        $command[] = $this->speed($options);
         $command[] = $this->tonemap($options);
         $command[] = $this->yuv($options);
+        # (4) Save image
         $command[] = $this->save($file);
 
+        # Let's get ready to rumble
         # (1) Remove falsey entries
         # (2) Convert command to string
         $command = implode(' ', array_filter($command));
