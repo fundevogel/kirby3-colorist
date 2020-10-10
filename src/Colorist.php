@@ -21,6 +21,7 @@ class Colorist extends Darkroom
     protected function defaults(): array
     {
         return parent::defaults() + [
+            'bpc'     => option('fundevogel.colorist.bpc', null),
             'cmm'     => option('fundevogel.colorist.cmm', null),
             'deflum'  => option('fundevogel.colorist.deflum', null),
             'format'  => null,
