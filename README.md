@@ -92,7 +92,7 @@ You may also change certain options from your `config.php` globally, like this: 
 
 The `colorist` library has [much more](https://github.com/joedrago/colorist/blob/master/docs/Usage.md) to offer, and more options will be made available in time - if one of it's many features you really feel is missing, feel free to open a PR!
 
-**Note:** When working with multiple formats, you may want to turn `thumbs.quality` into an array and pass the desired `format` explicitly, like this:
+**Note:** When working with multiple formats, you may want to turn `thumbs.quality` into an array:
 
 ```php
 // config.php
@@ -107,7 +107,7 @@ return [
 
 
 // template.php
-$image->thumb(['width' => 300, 'format' => 'avif']);
+$image->toFormat('avif')->thumb(['width' => 300]);
 ```
 
 #### Methods

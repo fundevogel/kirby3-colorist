@@ -87,13 +87,18 @@ class Colorist extends Darkroom
      */
 
     # https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-q---quality
-    protected function quality(array $options): string
+    protected function quality(string $file, array $options): string
     {
         $quality = $options['quality'];
 
         if (is_array($quality) === true) {
-            if (isset($options['format']) === true && in_array($options['format'], $quality) === true) {
-                $quality = $quality[$options['format']];
+            $format = $options['format'] === null
+                ? pathinfo($file, PATHINFO_EXTENSION)
+                : $options['format']
+            ;
+
+            if (in_array($format, $quality) === true) {
+                $quality = $quality[$format];
             } else {
                 return '';
             }
@@ -452,7 +457,7 @@ class Colorist extends Darkroom
         # Build `convert` command
         $command[] = $this->convert($file);
         # (1) Darkroom options
-        $command[] = $this->quality($options);
+        $command[] = $this->quality($file, $options);
         $command[] = $this->resize($file, $options);
         # (2) Basic options
         $command[] = $this->jobs($options);
