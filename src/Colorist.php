@@ -312,6 +312,10 @@ class Colorist extends Darkroom
     # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-b---bpc
     protected function bpc(array $options): string
     {
+        if ($options['bpc'] === null) {
+            return '';
+        }
+
         $min = 8;
         $max = 16;
 
@@ -345,6 +349,10 @@ class Colorist extends Darkroom
 
     protected function speed(array $options): string
     {
+        if ($options['speed'] === null) {
+            return '';
+        }
+
         $min = 0;
         $max = 10;
 
