@@ -20,7 +20,7 @@ load([
 
 
 # (2) Add `colorist` as thumb driver if enabled
-if (option('thumbs.driver') === 'colorist') {
+if (Str::lower(option('thumbs.driver')) === 'colorist') {
     Darkroom::$types['colorist'] = 'Fundevogel\Colorist';
 }
 
