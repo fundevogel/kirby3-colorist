@@ -267,12 +267,6 @@ class Colorist extends Darkroom
 
     # (1) Basic options
 
-    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-j---jobs
-    protected function jobs(array $options): string
-    {
-        return '--jobs ' . $options['jobs'];
-    }
-
     # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#--cmm---cms
     protected function cmm(array $options): string
     {
@@ -306,6 +300,12 @@ class Colorist extends Darkroom
         }
 
         return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-j---jobs
+    protected function jobs(array $options): string
+    {
+        return '--jobs ' . $options['jobs'];
     }
 
     # (2) Output format options
