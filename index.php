@@ -42,7 +42,7 @@ Kirby::plugin('fundevogel/colorist', [
     'options' => [
         'bin' => __DIR__ . '/bin/colorist',
         'sizes' => [1920, 1140, 640, 320],
-        'template' => 'image',
+        'template' => null,
         'formats' => ['webp'],
     ],
     'snippets' => [
@@ -124,23 +124,30 @@ Kirby::plugin('fundevogel/colorist', [
             $src = $this->root();
             $dst = Str::replace($src, $oldName, $newName);
 
-            $template = option('fundevogel.colorist.template');
-
-            # Check if there's an array with a template for each format
-            if (is_array($template)) {
-                if (!isset($template[$format])) {
-                    throw new Exception('No valid file template specified for format "' . $format . '"');
-                }
-
-                $template = $template[$format];
-            }
-
-            $file = new File([
+            $fileOptions = [
                 'source' => $dst,
                 'parent' => $this->parent(),
                 'filename' => $newName,
-                'template' => $template,
-            ]);
+            ];
+
+            $template = option('fundevogel.colorist.template');
+
+            # Check if template should be applied
+            if ($template !== null) {
+                # Check if there's an array with a template for each format
+                if (is_array($template)) {
+                    if (!array_key_exists($format, $template)) {
+                        throw new Exception('No valid file template specified for format "' . $format . '"');
+                    }
+
+                    $template = $template[$format];
+                }
+
+                # Apply template
+                $fileOptions['template'] = $template;
+            }
+
+            $file = new File($fileOptions);
 
             if ($file->exists()) {
                 return $file;

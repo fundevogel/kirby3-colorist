@@ -86,7 +86,7 @@ You may also change certain options from your `config.php` globally, like this: 
 | `'hlglum'`   | integer     | `null`                      | Like `'deflum'`, but uses an appropriate diffuse white based on peak HLG               |
 | `'jobs'`     | integer     | `0`                         | Number of jobs to use when working (`0` = unlimited)                                   |
 | `'speed'`    | integer     | `'auto'`                    | Quality/speed tradeoff when encoding (AVIF only); `0` = best quality, `10` = fastest   |
-| `'template'` | string      | `'image'`                   | Set file blueprint for generated images                                                |
+| `'template'` | string      | `null`                      | Set file blueprint for images generated with `toFormat()`                              |
 | `'tonemap'`  | string|bool | `'auto'`                    | Set tonemapping (`'on'` or `'off'`, but `true` & `false` are possible, too)            |
 | `'yuv'`      | string      | `'auto'`                    | Choose yuv output format for supported formats (`'444'`, `'422'`, `'420'` or `'yv12'`) |
 
@@ -108,6 +108,20 @@ return [
 
 // template.php
 $image->toFormat('avif')->thumb(['width' => 300]);
+```
+
+**Note:** You may also define [file templates](https://getkirby.com/docs/reference/panel/blueprints/file) on a per-format basis:
+
+```php
+// config.php
+
+return [
+    // ..
+    'fundevogel.colorist.template' => [
+        'avif' => 'early-bird',
+        'webp' => 'google-lover',
+    ],
+];
 ```
 
 #### Methods
