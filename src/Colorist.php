@@ -92,13 +92,13 @@ class Colorist extends Darkroom
     {
         $quality = $options['quality'];
 
-        if (is_array($quality) === true) {
+        if (is_array($quality)) {
             $format = $options['format'] === null
                 ? pathinfo($file, PATHINFO_EXTENSION)
                 : $options['format']
             ;
 
-            if (in_array($format, $quality) === true) {
+            if (array_key_exists($format, $quality)) {
                 $quality = $quality[$format];
             } else {
                 return '';
@@ -275,7 +275,7 @@ class Colorist extends Darkroom
             'lcms',
         ];
 
-        if (in_array($options['cmm'], $modules) === true) {
+        if (in_array($options['cmm'], $modules)) {
             return '--cmm ' . $options['cmm'];
         }
 
@@ -341,7 +341,7 @@ class Colorist extends Darkroom
             'webp',
         ];
 
-        if (in_array($options['format'], $formats) === true) {
+        if (in_array($options['format'], $formats)) {
             return '--format ' . $options['format'];
         }
 
@@ -381,7 +381,7 @@ class Colorist extends Darkroom
             'off',
         ];
 
-        if (in_array($options['tonemap'], $tonemap) === true) {
+        if (in_array($options['tonemap'], $tonemap)) {
             return '--tonemap ' . $options['tonemap'];
         }
 
@@ -398,7 +398,7 @@ class Colorist extends Darkroom
             'yv12',
         ];
 
-        if (in_array($options['yuv'], $yuv) === true) {
+        if (in_array($options['yuv'], $yuv)) {
             return '--yuv ' . $options['yuv'];
         }
 
