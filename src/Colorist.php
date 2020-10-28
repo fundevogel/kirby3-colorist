@@ -2,6 +2,8 @@
 
 namespace Fundevogel;
 
+use Exception;
+
 use Kirby\Image\Darkroom;
 
 
