@@ -29,6 +29,8 @@ class Colorist extends Darkroom
             'format'  => null,
             'hlglum'  => option('fundevogel.colorist.hlglum', null),
             'jobs'    => option('fundevogel.colorist.jobs', 0),
+            'nclx'    => option('fundevogel.colorist.nclx', null),
+            'rate'    => option('fundevogel.colorist.rate', 0),
             'speed'   => option('fundevogel.colorist.speed', null),
             'tonemap' => option('fundevogel.colorist.tonemap', null),
             'yuv'     => option('fundevogel.colorist.yuv', null),
@@ -307,7 +309,11 @@ class Colorist extends Darkroom
     # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-j---jobs
     protected function jobs(array $options): string
     {
-        return '--jobs ' . $options['jobs'];
+        if ($options['jobs'] > 0) {
+            return '--jobs ' . $options['jobs'];
+        }
+
+        return '';
     }
 
     # (2) Output format options
@@ -345,6 +351,24 @@ class Colorist extends Darkroom
 
         if (in_array($options['format'], $formats)) {
             return '--format ' . $options['format'];
+        }
+
+        return '';
+    }
+
+    protected function nclx(array $options): string
+    {
+        if ($options['nclx'] !== null) {
+            return '--nclx ' . $options['nclx'];
+        }
+
+        return '';
+    }
+
+    protected function rate(array $options): string
+    {
+        if ($options['rate'] > 0) {
+            return '--rate ' . $options['rate'];
         }
 
         return '';
@@ -478,6 +502,8 @@ class Colorist extends Darkroom
         # (3) Output format options
         $command[] = $this->bpc($options);
         $command[] = $this->format($options);
+        $command[] = $this->nclx($options);
+        $command[] = $this->rate($options);
         $command[] = $this->speed($options);
         $command[] = $this->tonemap($options);
         $command[] = $this->yuv($options);

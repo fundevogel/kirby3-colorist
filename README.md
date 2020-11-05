@@ -85,6 +85,8 @@ You may also change certain options from your `config.php` globally, like this: 
 | `'deflum'`   | integer     | `80`                        | default/fallback luminance value in nits                                               |
 | `'hlglum'`   | integer     | `null`                      | Like `'deflum'`, but uses an appropriate diffuse white based on peak HLG               |
 | `'jobs'`     | integer     | `0`                         | Number of jobs to use when working (`0` = unlimited)                                   |
+| `'nclx'`     | string      | `null`                      | Force the output NCLX color profile to specific values: PRI,TF,MTX (AVIF only)         |
+| `'rate'`     | integer     | `0`                         | Output rate for for supported output formats. If `0`, codec uses quality value         |
 | `'speed'`    | integer     | `'auto'`                    | Quality/speed tradeoff when encoding (AVIF only); `0` = best quality, `10` = fastest   |
 | `'template'` | string      | `null`                      | Set file blueprint for images generated with `toFormat()`                              |
 | `'tonemap'`  | string|bool | `'auto'`                    | Set tonemapping (`'on'` or `'off'`, but `true` & `false` are possible, too)            |
