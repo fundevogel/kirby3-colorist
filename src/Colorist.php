@@ -22,18 +22,35 @@ class Colorist extends Darkroom
 
     protected function defaults(): array
     {
+        # For more information on all options `colorist` offers,
+        # see https://github.com/joedrago/colorist/blob/master/docs/Usage.md
         return parent::defaults() + [
-            'bpc'     => option('fundevogel.colorist.bpc', null),
-            'cmm'     => option('fundevogel.colorist.cmm', null),
-            'deflum'  => option('fundevogel.colorist.deflum', null),
-            'format'  => null,
-            'hlglum'  => option('fundevogel.colorist.hlglum', null),
-            'jobs'    => option('fundevogel.colorist.jobs', 0),
-            'nclx'    => option('fundevogel.colorist.nclx', null),
-            'rate'    => option('fundevogel.colorist.rate', 0),
-            'speed'   => option('fundevogel.colorist.speed', null),
-            'tonemap' => option('fundevogel.colorist.tonemap', null),
-            'yuv'     => option('fundevogel.colorist.yuv', null),
+            # (1) Basic options
+            'jobs'        => option('fundevogel.colorist.jobs', 0),
+            'cmm'         => option('fundevogel.colorist.cmm', null),
+            'deflum'      => option('fundevogel.colorist.deflum', null),
+            'hlglum'      => option('fundevogel.colorist.hlglum', null),
+            # (2) Input profile options
+            'iccin'       => option('fundevogel.colorist.iccin', null),
+            'frameindex'  => option('fundevogel.colorist.frameindex', 0),
+            # (3) Output profile options
+            'iccout'      => option('fundevogel.colorist.iccout', null),
+            'autograde'   => option('fundevogel.colorist.autograde', false),
+            'copyright'   => option('fundevogel.colorist.copyright', null),
+            'description' => option('fundevogel.colorist.description', null),
+            'gamma'       => option('fundevogel.colorist.gamma', null),
+            'luminance'   => option('fundevogel.colorist.luminance', null),
+            'primaries'   => option('fundevogel.colorist.primaries', null),
+            'noprofile'   => option('fundevogel.colorist.noprofile', false),
+            # (4) Output format options
+            'bpc'         => option('fundevogel.colorist.bpc', null),
+            'format'      => null,
+            'quality'     => option('thumbs.quality', 90),
+            'rate'        => option('fundevogel.colorist.rate', 0),
+            'tonemap'     => option('fundevogel.colorist.tonemap', null),
+            'yuv'         => option('fundevogel.colorist.yuv', null),
+            'speed'       => option('fundevogel.colorist.speed', null),
+            'nclx'        => option('fundevogel.colorist.nclx', null),
         ];
     }
 
@@ -266,7 +283,9 @@ class Colorist extends Darkroom
      * Implementing Colorist options
      *
      * (1) Basic options
-     * (2) Output format options
+     * (2) Input profile options
+     * (3) Output profile options
+     * (4) Output format options
      */
 
     # (1) Basic options
@@ -316,7 +335,119 @@ class Colorist extends Darkroom
         return '';
     }
 
-    # (2) Output format options
+    # (2) Input profile options
+    protected function iccin(array $options): string
+    {
+        if ($options['iccin'] !== null) {
+            return '--iccin ' . $options['iccin'];
+        }
+
+        return '';
+    }
+
+    protected function frameindex(array $options): string
+    {
+        if ($options['frameindex'] > 0) {
+            return '--frameindex ' . $options['frameindex'];
+        }
+
+        return '';
+    }
+
+    # (3) Output profile options
+
+    protected function iccout(array $options): string
+    {
+        if ($options['iccout'] !== null) {
+            return '--iccout ' . $options['iccout'];
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-a---autograde
+    protected function autograde(array $options): string
+    {
+        if ($options['autograde'] === true) {
+            return '--autograde';
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-c---copyright
+    protected function copyright(array $options): string
+    {
+        if ($options['copyright'] !== null) {
+            return '--copyright ' . $options['copyright'];
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-d---description
+    protected function description(array $options): string
+    {
+        if ($options['description'] !== null) {
+            return '--description ' . $options['description'];
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-g---gamma
+    protected function gamma(array $options): string
+    {
+        $gamma = [
+            'pq',
+            'hlg',
+            'source',
+        ];
+
+        if (in_array($options['gamma'], $gamma)) {
+            return '--gamma ' . $options['gamma'];
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-l---luminance
+    protected function luminance(array $options): string
+    {
+        if ($options['luminance'] !== null) {
+            return '--luminance ' . $options['luminance'];
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-p---primaries
+    protected function primaries(array $options): string
+    {
+        $primaries = [
+            'bt709',
+            'bt2020',
+            'p3',
+        ];
+
+        if (in_array($options['primaries'], $primaries)) {
+            return '--primaries ' . $options['primaries'];
+        }
+
+        return '';
+    }
+
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-n---noprofile
+    protected function noprofile(array $options): string
+    {
+        if ($options['noprofile'] === true) {
+            return '--noprofile';
+        }
+
+        return '';
+    }
+
+    # (4) Output format options
 
     # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-b---bpc
     protected function bpc(array $options): string
@@ -499,7 +630,19 @@ class Colorist extends Darkroom
         $command[] = $this->cmm($options);
         $command[] = $this->deflum($options);
         $command[] = $this->hlglum($options);
-        # (3) Output format options
+        # (3) Input profile options
+        $command[] = $this->iccin($options);
+        $command[] = $this->frameindex($options);
+        # (4) Output profile options
+        $command[] = $this->iccout($options);
+        $command[] = $this->autograde($options);
+        $command[] = $this->copyright($options);
+        $command[] = $this->description($options);
+        $command[] = $this->gamma($options);
+        $command[] = $this->luminance($options);
+        $command[] = $this->primaries($options);
+        $command[] = $this->noprofile($options);
+        # (5) Output format options
         $command[] = $this->bpc($options);
         $command[] = $this->format($options);
         $command[] = $this->nclx($options);
@@ -507,7 +650,7 @@ class Colorist extends Darkroom
         $command[] = $this->speed($options);
         $command[] = $this->tonemap($options);
         $command[] = $this->yuv($options);
-        # (4) Save image
+        # (6) Save image
         $command[] = $this->save($file);
 
         # Let's get ready to rumble

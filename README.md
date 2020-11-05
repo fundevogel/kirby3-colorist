@@ -77,22 +77,53 @@ For further details, have a look at the following sections.
 #### Configuration
 You may also change certain options from your `config.php` globally, like this: `'fundevogel.colorist.optionName'` (or simply pass them to the `thumb()` method:
 
-| Option       | Type        | Default(s to)               | Description                                                                            |
-| ------------ | ----------- | --------------------------- | -------------------------------------------------------------------------------------- |
-| `'bin'`      | string      | `__DIR__ . '/bin/colorist'` | Path to `colorist` executable                                                          |
-| `'bpc'`      | integer     | `'auto'`                    | Set bits-per-channel (J2K/JP2 only); ranging from `8` to `16`                          |
-| `'formats'`  | array       | `['webp']`                  | Default file formats to be used on image uploads                                       |
-| `'deflum'`   | integer     | `80`                        | default/fallback luminance value in nits                                               |
-| `'hlglum'`   | integer     | `null`                      | Like `'deflum'`, but uses an appropriate diffuse white based on peak HLG               |
-| `'jobs'`     | integer     | `0`                         | Number of jobs to use when working (`0` = unlimited)                                   |
-| `'nclx'`     | string      | `null`                      | Force the output NCLX color profile to specific values: PRI,TF,MTX (AVIF only)         |
-| `'rate'`     | integer     | `0`                         | Output rate for for supported output formats. If `0`, codec uses quality value         |
-| `'speed'`    | integer     | `'auto'`                    | Quality/speed tradeoff when encoding (AVIF only); `0` = best quality, `10` = fastest   |
-| `'template'` | string      | `null`                      | Set file blueprint for images generated with `toFormat()`                              |
-| `'tonemap'`  | string|bool | `'auto'`                    | Set tonemapping (`'on'` or `'off'`, but `true` & `false` are possible, too)            |
-| `'yuv'`      | string      | `'auto'`                    | Choose yuv output format for supported formats (`'444'`, `'422'`, `'420'` or `'yv12'`) |
+##### Plugin options
 
-The `colorist` library has [much more](https://github.com/joedrago/colorist/blob/master/docs/Usage.md) to offer, and more options will be made available in time - if one of it's many features you really feel is missing, feel free to open a PR!
+| Option       | Type        | Default(s to)               | Description                                               |
+| ------------ | ----------- | --------------------------- | --------------------------------------------------------- |
+| `'bin'`      | string      | `__DIR__ . '/bin/colorist'` | Path to `colorist` executable                             |
+| `'formats'`  | array       | `['webp']`                  | Default file formats to be used on image uploads          |
+| `'template'` | string      | `null`                      | Set file blueprint for images generated with `toFormat()` |
+
+##### Basic options
+
+| Option       | Type        | Default(s to) | Description                                                              |
+| ------------ | ----------- | ------------- | ------------------------------------------------------------------------ |
+| `'jobs'`     | int         | `0`           | Number of jobs to use when working (`0` = unlimited)                     |
+| `'cmm'`      | string      | `'auto'`      | Color Management Module/System (`lcms` or `colorist`)                    |
+| `'deflum'`   | int         | `80`          | default/fallback luminance value in nits                                 |
+| `'hlglum'`   | int         | `null`        | Like `'deflum'`, but uses an appropriate diffuse white based on peak HLG |
+
+##### Input profile options
+
+| Option          | Type       | Default(s to) | Description                                                                            |
+| --------------- | ---------- | ------------- | -------------------------------------------------------------------------------------- |
+| `'iccin'`       | string     | `null`        | Path to source ICC profile. default is to use embedded profile (if any) or sRGB@deflum |
+| `'frameindex'`  | bool       | `0`           | Source frame from an image sequence (AVIF only)                                        |
+
+##### Output profile options
+
+| Option          | Type       | Default(s to) | Description                                                                                             |
+| --------------- | ---------- | ------------- | ------------------------------------------------------------------------------------------------------- |
+| `'iccout'`      | string     | `null`        | Path to ICC profile. Disables all other output profile options                                          |
+| `'autograde'`   | bool       | `false`       | Enable automatic color grading of max luminance and gamma                                               |
+| `'description'` | string     | `null`        | ICC profile copyright string                                                                            |
+| `'copyright'`   | string     | `null`        | ICC profile description                                                                                 |
+| `'gamma'`       | string     | `'auto'`      | Output gamma (`'pq'` = PQ, `'hlg'` = HLG, `'source'` = force source gamma)                              |
+| `'luminance'`   | string|int | `'source'`    | ICC profile max luminance in nits, alternatively `'source'` (match source luminance) or `'unspecified'` |
+| `'primaries'`   | string     | `null`        | Color primaries. Use builtin (`bt709`, `bt2020`, `p3`) ~~or in the form: rx,ry,gx,gy,bx,by,wx,wy~~      |
+| `'noprofile'`   | bool       | `false`       | Do not write the converted image's profile to the output file                                           |
+
+##### Output format options
+
+| Option       | Type        | Default(s to) | Description                                                                            |
+| ------------ | ----------- | ------------- | -------------------------------------------------------------------------------------- |
+| `'bpc'`      | int         | `'auto'`      | Set bits-per-channel (J2K/JP2 only); ranging from `8` to `16`                          |
+| `'rate'`     | int         | `0`           | Output rate for for supported output formats. If `0`, codec uses quality value         |
+| `'tonemap'`  | string|bool | `'auto'`      | Set tonemapping (`'on'` or `'off'`, but `true` & `false` are possible, too)            |
+| `'yuv'`      | string      | `'auto'`      | Choose yuv output format for supported formats (`'444'`, `'422'`, `'420'` or `'yv12'`) |
+| `'speed'`    | int         | `'auto'`      | Quality/speed tradeoff when encoding (AVIF only); `0` = best quality, `10` = fastest   |
+| `'nclx'`     | string      | `null`        | Force the output NCLX color profile to specific values: PRI,TF,MTX (AVIF only)         |
 
 **Note:** When working with multiple formats, you may want to turn `thumbs.quality` into an array:
 
@@ -155,11 +186,13 @@ WIP
 
 
 ## Roadmap
+The `colorist` library has [much more](https://github.com/joedrago/colorist/blob/master/docs/Usage.md) to offer, and more options will be made available in time - if one of it's many features you really feel is missing, feel free to open a PR!
+
 - [ ] Add tests
 - [x] ~~Add hooks for file upload/update~~
 - [x] ~~Add tag for editor use~~
 - [x] ~~Add compatibility with 'Focus' plugin by @flokosiol~~
-- [ ] Add methods for editing ICC color profile
+- [x] Add methods for editing ICC color profile
 
 
 ## Credits
