@@ -290,6 +290,16 @@ class Colorist extends Darkroom
 
     # (1) Basic options
 
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-j---jobs
+    protected function jobs(array $options): string
+    {
+        if ($options['jobs'] > 0) {
+            return '--jobs ' . $options['jobs'];
+        }
+
+        return '';
+    }
+
     # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#--cmm---cms
     protected function cmm(array $options): string
     {
@@ -320,16 +330,6 @@ class Colorist extends Darkroom
     {
         if ($options['hlglum'] !== null) {
             return '--hlglum ' . $options['hlglum'];
-        }
-
-        return '';
-    }
-
-    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-j---jobs
-    protected function jobs(array $options): string
-    {
-        if ($options['jobs'] > 0) {
-            return '--jobs ' . $options['jobs'];
         }
 
         return '';
@@ -487,35 +487,11 @@ class Colorist extends Darkroom
         return '';
     }
 
-    protected function nclx(array $options): string
-    {
-        if ($options['nclx'] !== null) {
-            return '--nclx ' . $options['nclx'];
-        }
-
-        return '';
-    }
-
+    # See https://github.com/joedrago/colorist/blob/master/docs/Usage.md#-r---rate
     protected function rate(array $options): string
     {
         if ($options['rate'] > 0) {
             return '--rate ' . $options['rate'];
-        }
-
-        return '';
-    }
-
-    protected function speed(array $options): string
-    {
-        if ($options['speed'] === null) {
-            return '';
-        }
-
-        $min = 0;
-        $max = 10;
-
-        if (($min <= (int) $options['speed']) && ((int) $options['speed'] <= $max)) {
-            return '--speed ' . $options['speed'];
         }
 
         return '';
@@ -557,6 +533,31 @@ class Colorist extends Darkroom
 
         if (in_array($options['yuv'], $yuv)) {
             return '--yuv ' . $options['yuv'];
+        }
+
+        return '';
+    }
+
+    protected function speed(array $options): string
+    {
+        if ($options['speed'] === null) {
+            return '';
+        }
+
+        $min = 0;
+        $max = 10;
+
+        if (($min <= (int) $options['speed']) && ((int) $options['speed'] <= $max)) {
+            return '--speed ' . $options['speed'];
+        }
+
+        return '';
+    }
+
+    protected function nclx(array $options): string
+    {
+        if ($options['nclx'] !== null) {
+            return '--nclx ' . $options['nclx'];
         }
 
         return '';
@@ -645,11 +646,11 @@ class Colorist extends Darkroom
         # (5) Output format options
         $command[] = $this->bpc($options);
         $command[] = $this->format($options);
-        $command[] = $this->nclx($options);
         $command[] = $this->rate($options);
-        $command[] = $this->speed($options);
         $command[] = $this->tonemap($options);
         $command[] = $this->yuv($options);
+        $command[] = $this->speed($options);
+        $command[] = $this->nclx($options);
         # (6) Save image
         $command[] = $this->save($file);
 
