@@ -3,7 +3,7 @@
     "description": "Kirby v3 wrapper for colorist",
     "type": "kirby-plugin",
     "license": "MIT",
-    "version": "1.8.0",
+    "version": "1.8.1",
     "keywords": ["kirby3", "image", "graphics"],
     "homepage": "https://github.com/Fundevogel/kirby3-colorist#readme",
     "authors": [
