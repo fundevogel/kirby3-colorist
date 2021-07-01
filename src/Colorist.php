@@ -95,12 +95,12 @@ class Colorist extends Darkroom
 
     protected function convert(string $file): string
     {
-        return sprintf(option('fundevogel.colorist.bin') . ' convert %s', $file);
+        return sprintf(option('fundevogel.colorist.bin') . ' convert "%s"', $file);
     }
 
     protected function save(string $file): string
     {
-        return sprintf('%s', $file);
+        return sprintf('"%s"', $file);
     }
 
 
